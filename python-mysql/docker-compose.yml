@@ -1,0 +1,22 @@
+version: '3'
+services:
+  mariadb:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sqoin
+    working_dir: /app
+    volumes:
+      - .:/app
+      - ./mariadb:/docker-entrypoint-initdb.d
+   
+    ports:
+      - "3306:3306"
+    command:  mysqld
+  python:
+    build: .
+    volumes:
+      - .:/app
+    command: /app/wait.sh
+    ports:
+      - "8080:8080"

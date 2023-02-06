@@ -1,0 +1,32 @@
+version: '3'
+services:
+  node:
+    build: ./node
+    volumes:
+      - ./node:/app
+      - /app/node_modules
+    working_dir: /app
+    command: node bacem.js
+    ports:
+      - "9000:4000"
+    environment:
+      - PORT=4000
+      - MESSAGE=AMAL NARJISSIA
+  
+  mariadb:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 4000:3306
+  mondodb:
+    image: mongo
+    ports:
+      - 27018:27017
+  login-with:
+    image: lipp/login-with
+    ports:
+      - 8080:8080
+    environment:
+      - name=value
+  
