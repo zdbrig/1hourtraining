@@ -7,11 +7,12 @@ services:
       MYSQL_DATABASE: sqoin
     working_dir: /app
     volumes:
+     
       - .:/app
       - ./mariadb:/docker-entrypoint-initdb.d
-   
+      - ./data:/var/lib/mysql
     ports:
-      - "3306:3306"
+      - "3307:3306"
     command:  mysqld
   python:
     build: .
@@ -19,4 +20,4 @@ services:
       - .:/app
     command: /app/wait.sh
     ports:
-      - "8080:8080"
+      - "8081:8080"

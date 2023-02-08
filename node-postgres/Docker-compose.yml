@@ -1,0 +1,22 @@
+version: '3'
+services:
+  nodejs:
+    build: .
+    ports:
+      - "9090:3000"
+    working_dir: /app
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: mydb
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    volumes:
+      - .:/app
+      - /app/node_modules
+  postgres:
+    build: ./postgres
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword

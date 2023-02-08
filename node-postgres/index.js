@@ -1,57 +1,47 @@
-const axios = require('axios');
+const express = require("express");
+const axios = require("axios");
+const { Client } = require("pg");
 
-const API_URL = 'http://localhost:8080/article';
+const app = express();
 
-async function getArticles() {
+app.use(express.json());
+
+const getArticles = async () => {
   try {
-    const response = await axios.get(API_URL);
-    console.log(response.data);
+    const response = await axios.get("http://python:8080");
+    return response.data;
   } catch (error) {
     console.error(error);
+    return [];
   }
-}
+};
 
-async function createArticle(name) {
-  try {
-    const response = await axios.post(API_URL, { name });
-    console.log(response.data);
-  } catch (error) {
-    console.error(error);
-  }
-}
+const getArticlePrice = async (client, articleId) => {
+  const result = await client.query(
+    "SELECT price FROM article WHERE id = $1",
+    [articleId]
+  );
+  return result.rows[0].price;
+};
 
-async function getArticle(id) {
-  try {
-    const response = await axios.get(`${API_URL}/${id}`);
-    console.log(response.data);
-  } catch (error) {
-    console.error(error);
-  }
-}
+app.get("/articles", async (req, res) => {
+  const articles = await getArticles();
 
-async function updateArticle(id, name) {
-  try {
-    const response = await axios.put(`${API_URL}/${id}`, { name });
-    console.log(response.data);
-  } catch (error) {
-    console.error(error);
-  }
-}
+  const client = new Client();
+  await client.connect();
 
-async function deleteArticle(id) {
-  try {
-    const response = await axios.delete(`${API_URL}/${id}`);
-    console.log(response.data);
-  } catch (error) {
-    console.error(error);
-  }
-}
+  const articlesWithPrices = await Promise.all(
+    articles.map(async (article) => {
+      const price = await getArticlePrice(client, article.id);
+      return { ...article, price };
+    })
+  );
 
-// Example usage
-getArticles();
-createArticle('Bacem');
-getArticles();
-/*getArticle(1);
-updateArticle(1, 'Updated Article 1');
-deleteArticle(1);
-*/
+  await client.end();
+
+  res.json(articlesWithPrices);
+});
+
+app.listen(3000, () => {
+  console.log("Server started on http://localhost:3000");
+});
