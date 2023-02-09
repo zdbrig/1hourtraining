@@ -1,32 +1,43 @@
 version: '3'
 services:
-  node:
-    build: ./node
-    volumes:
-      - ./node:/app
-      - /app/node_modules
-    working_dir: /app
-    command: node bacem.js
+  nodejs:
+    build: ./node-postgres
     ports:
-      - "9000:4000"
+      - "9090:3000"
+    working_dir: /app
     environment:
-      - PORT=4000
-      - MESSAGE=AMAL NARJISSIA
-  
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: mydb
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    volumes:
+      - ./node-postgres:/app
+      - /app/node_modules
+  postgres:
+    build: ./node-postgres/postgres
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
   mariadb:
-    image: mariadb
+    image: mariadb:latest
     environment:
       MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sqoin
+    working_dir: /app
+    volumes:
+      - ./python-mysql:/app
+      - ./python-mysql/mariadb:/docker-entrypoint-initdb.d
+      - ./python-mysql/data:/var/lib/mysql
     ports:
-      - 4000:3306
-  mondodb:
-    image: mongo
+      - "3307:3306"
+    command:  mysqld
+  python:
+    build: ./python-mysql
+    volumes:
+      - ./python-mysql:/app
+    command: /app/wait.sh
     ports:
-      - 27018:27017
-  login-with:
-    image: lipp/login-with
-    ports:
-      - 8080:8080
-    environment:
-      - name=value
+      - "8081:8080"
   

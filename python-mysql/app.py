@@ -1,6 +1,6 @@
 from flask import Flask, request
 import mysql.connector
-
+import json
 app = Flask(__name__)
 
 conn = mysql.connector.connect(
@@ -30,7 +30,7 @@ def article():
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM article")
         articles = cursor.fetchall()
-        return '\n'.join([str(id) + ': ' + name for id, name in articles])
+        return json.dumps(articles)
 
 @app.route('/article/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 def article_id(id):

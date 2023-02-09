@@ -5,7 +5,7 @@ CREATE TABLE article (
 
 INSERT INTO article (price)
 VALUES 
-  (10),
+  (500),
   (12),
   (10),
   (10),
