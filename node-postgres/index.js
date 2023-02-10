@@ -29,7 +29,7 @@ const getArticlePrice = async (client, articleId) => {
 
 app.get("/articles", async (req, res) => {
   const articles = await getArticles();
-
+  
   const client = new Client({
     user: process.env.POSTGRES_USER,
     host: process.env.POSTGRES_HOST,

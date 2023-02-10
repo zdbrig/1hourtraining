@@ -1,9 +1,7 @@
 version: '3'
 services:
-  nodejs:
+  article-api:
     build: ./node-postgres
-    ports:
-      - "9090:3000"
     working_dir: /app
     environment:
       POSTGRES_HOST: postgres
@@ -40,4 +38,20 @@ services:
     command: /app/wait.sh
     ports:
       - "8081:8080"
+  article-api-fassade:
+    build: ./node-queries-filter
+    ports:
+      - "9091:3000"
+    working_dir: /app
+    volumes:
+      - ./node-queries-filter:/app
+      - /app/node_modules
+    command: node index.js
+  article-auth:
+    build: ./node-auth
+    working_dir: /app
+    volumes:
+      - ./node-auth:/app
+      - /app/node_modules
+    command: node index.js
   
