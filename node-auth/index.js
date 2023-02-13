@@ -1,30 +1,19 @@
 const express = require('express');
-const axios = require('axios');
-const btoa = require('btoa');
+const articlesRoute = require('./routes/articles-route');
+const auth = require('./security/auth');
+const database = require('./database/database');
+
 const app = express();
 
-const username = 'your_username';
-const password = 'your_password';
-const basicAuth = 'Basic ' + btoa(username + ':' + password);
-
-app.use((req, res, next) => {
-  const authorization = req.header('Authorization');
-  if (!authorization || authorization !== basicAuth) {
-    return res.status(401).send('Unauthorized');
-  }
-  next();
+//database management
+database.connect();
+process.on('SIGINT', () => {
+  database.close();
+  process.exit();
 });
 
-app.get('/articles', (req, res) => {
-  axios.get('http://article-api:3000/articles?username=' + username)
-    .then(response => {
-      res.send(response.data);
-    })
-    .catch(error => {
-      console.error(error);
-      res.status(500).send('Error while fetching data from the microservice');
-    });
-});
+app.use(auth.authenticate);
+articlesRoute(app);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
