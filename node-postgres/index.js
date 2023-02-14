@@ -1,7 +1,8 @@
 const express = require("express");
 const axios = require("axios");
 const { Client } = require("pg");
-
+const amqp = require('amqplib');
+const queueName = 'SqoinQueue';
 const app = express();
 
 app.use(express.json());
@@ -15,6 +16,30 @@ const getArticles = async () => {
     return [];
   }
 };
+
+
+
+
+
+
+
+app.post('/api/messages', async (req, res) => {
+  try {
+    const msg = req.body.message;
+    const connection = await amqp.connect(process.env.RABBITMQ_URL);
+    const channel = await connection.createChannel();
+    await channel.assertQueue(queueName);
+    await channel.sendToQueue(queueName, Buffer.from(msg));
+    console.log(`Message sent to ${queueName}: ${msg}`);
+    await channel.close();
+    await connection.close();
+    res.status(200).send(`Message sent to ${queueName}: ${msg}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error sending message to RabbitMQ queue');
+  }
+});
+
 
 const getArticlePrice = async (client, articleId) => {
   const result = await client.query(
