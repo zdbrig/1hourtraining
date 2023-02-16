@@ -1,7 +1,4 @@
-from node:18
-
-RUN apt-get update
-RUN apt-get install -y netcat
+from  bbacem/node-18-netcat
 
 WORKDIR /app
 

@@ -6,9 +6,13 @@ const queueName = 'SqoinQueue';
 const app = express();
 
 app.use(express.json());
+const logger = require('./logger');
+console.log = logger;
+console.error = logger;
 
 const getArticles = async () => {
   try {
+    console.log("getting articles");
     const response = await axios.get("http://python:8080/article");
     return response.data;
   } catch (error) {

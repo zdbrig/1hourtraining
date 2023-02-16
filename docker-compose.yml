@@ -43,6 +43,8 @@ services:
     ports:
       - "3307:3306"
     command:  mysqld
+    depends_on:
+      - fluentd
   python:
     build: ./python-mysql
     volumes:
@@ -83,6 +85,13 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+  fluentd:
+    image: fluent/fluentd:v1.11
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+
+  
 
     
   
