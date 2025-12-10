@@ -1,4 +1,5 @@
-from flask import Flask, request
+from flask import Flask, request, make_response
+from fpdf import FPDF
 import mysql.connector
 import json
 app = Flask(__name__)
@@ -31,6 +32,31 @@ def article():
         cursor.execute("SELECT * FROM article")
         articles = cursor.fetchall()
         return json.dumps(articles)
+
+@app.route('/article/pdf', methods=['GET'])
+def article_pdf():
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM article")
+        articles = cursor.fetchall()
+    except mysql.connector.Error as e:
+        error_message = {'error': str(e)}
+        return json.dumps(error_message), 500, {'Content-Type': 'application/json'}
+
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.cell(200, 10, txt="Articles", ln=1, align="C")
+
+    for article in articles:
+        pdf.cell(200, 10, txt=f"ID: {article[0]}, Name: {article[1]}", ln=1)
+
+    pdf_out = pdf.output(dest='S').encode('latin-1')
+    response = make_response(pdf_out)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=articles.pdf'
+
+    return response
 
 @app.route('/article/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 def article_id(id):
